@@ -7,11 +7,12 @@ import (
 	"strings"
 )
 
-// DoesFolderExist 文件夹不存在
+// DoesFolderExist 文件夹或文件不存在
 func DoesFolderExist(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
 	}
+
 	return true
 }
 
@@ -37,6 +38,13 @@ func CreateFile(path string) {
 	InterceptErrorsAndKillProcessImmediately(createErr, func(msg string) {
 		RedTips(CreateErrorFile)
 	})
+}
+
+func IsDir(path string) bool {
+	f, err := os.Stat(JoinPwd(path))
+	ColdKiller(err)
+	return f.IsDir()
+
 }
 
 func CreateIniFile(name string) string {

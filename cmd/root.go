@@ -17,13 +17,8 @@ var rootCmd = &cobra.Command{
 	Use:   "work",
 	Short: "without parameters, the specified workspace will be checked by default",
 	Long:  "without parameters, the specified workspace will be checked by default(不带参数的情况下，默认会检查指定工作区)",
-	PreRun: func(cmd *cobra.Command, args []string) {
-		//coreConfig.CheckWorkGroup()
-		//coreConfig.CheckWorkSpace()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		printVersion()
-		// 检查工作区
 	},
 }
 

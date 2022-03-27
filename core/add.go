@@ -2,49 +2,50 @@ package core
 
 import (
 	"fmt"
-	"gopkg.in/ini.v1"
 	"path/filepath"
 	"workspaceCmd/utils"
 )
 
 // WorkSpaceGroup  工作组配置
 type WorkSpaceGroup struct {
-	GroupName    string
-	GroupRemarks string
-	Path         string
+	GroupName           string
+	GroupRemarks        string
+	Path                string // 工作组路径
+	WorkGroupConfigPath string // 工作组配置路径
+	LastOpenMethod      string // 上次打开方式
 }
 
 func (receiver *WorkSpaceGroup) NewConfig() {
 	defer func() {
 		utils.GreenTips("new workgroup succeeded")
 	}()
-
 	receiver.GroupName = utils.GetLastFileNameDirectoryNamePath(receiver.Path)
 
 	path := utils.CreateIniFile(receiver.GroupName)
+	initHandler := utils.IniHelper{
+		Path: path,
+	}
 	// 读ini文件
-	iniFile, parseError := ini.Load(path)
-	utils.ColdKiller(parseError)
-	// 新建工作组分区(section)
-	_, newSectionErr := iniFile.NewSection(utils.WorkgroupConfigurationNameInIni)
-	utils.ColdKiller(newSectionErr)
-	// 新建工作组分区字段
-	_, newNameKeyErr := iniFile.Section(utils.WorkgroupConfigurationNameInIni).NewKey(utils.WorkGroupName, receiver.GroupName)
-	utils.ColdKiller(newNameKeyErr)
-	_, newRemarksErr := iniFile.Section(utils.WorkgroupConfigurationNameInIni).NewKey(utils.WorkGroupWithRemarks, receiver.GroupRemarks)
-	utils.ColdKiller(newRemarksErr)
-	_, newPathErr := iniFile.Section(utils.WorkgroupConfigurationNameInIni).NewKey(utils.WorkGroupPath, utils.JoinPwd(receiver.Path))
-	utils.ColdKiller(newPathErr)
-	saveErr := iniFile.SaveTo(path)
-	utils.ColdKiller(saveErr)
+	initHandler.NewIni().
+		// 新建工作组分区(section)
+		NewSection(utils.WorkgroupConfigurationNameInIni).
+		// 新建工作组分区字段
+		NewKey(utils.WorkgroupConfigurationNameInIni, utils.WorkGroupName, receiver.GroupName).
+		NewKey(utils.WorkgroupConfigurationNameInIni, utils.WorkGroupWithRemarks, receiver.GroupRemarks).
+		NewKey(utils.WorkgroupConfigurationNameInIni, utils.WorkGroupPath, utils.JoinPwd(receiver.Path)).
+		NewKey(utils.WorkgroupConfigurationNameInIni, utils.WorkGroupConfigPath, path).
+		NewKey(utils.WorkgroupConfigurationNameInIni, utils.LastOpenMethodLabel, utils.LastOpenMethodLabelDefault).
+		Save()
 }
 
 // WorkSpace 工作区配置
 type WorkSpace struct {
-	Path      string // 工作组路径
-	WithGroup string // 与哪个工作组绑定
-	Remarks   string // 备注
-	Name      string // 工作区名 非必填，默认路径最后路径（file name or dir name）
+	Path           string // 工作组路径
+	WithGroup      string // 与哪个工作组绑定
+	Remarks        string // 备注
+	Name           string // 工作区名 非必填，默认路径最后路径（file name or dir name）
+	GroupPath      string // 工作组路径 用于ls -d 指令删除时不用循环配置文件夹去找工作组文件
+	LastOpenMethod string // 上次打开方式
 }
 
 func (receiver *WorkSpace) NewConfig() {
@@ -52,21 +53,18 @@ func (receiver *WorkSpace) NewConfig() {
 		utils.GreenTips("new workspace succeeded")
 	}()
 	path := filepath.Join(utils.GetPwd(), utils.IniConfigurationFolder, fmt.Sprint(receiver.WithGroup, ".ini"))
-	iniFile, parseErr := ini.Load(path)
-	utils.InterceptErrorsAndKillProcessImmediately(parseErr, func(msg string) {
-		utils.RedTips(utils.CheckWorkSpaceOrWorkGroup)
-	})
+	iniHandler := utils.IniHelper{
+		Path: path,
+	}
+
 	receiver.Name = utils.GetLastFileNameDirectoryNamePath(receiver.Path)
-	// 新建工作区 section
-	_, newSectionErr := iniFile.NewSection(receiver.Name)
-	utils.ColdKiller(newSectionErr)
-	// 配置工作区
-	_, newPathKeyErr := iniFile.Section(receiver.Name).NewKey(utils.WorkSpacePath, utils.JoinPwd(receiver.Path))
-	utils.ColdKiller(newPathKeyErr)
-	_, newRemarksErr := iniFile.Section(receiver.Name).NewKey(utils.WorkSpaceRemarks, receiver.Remarks)
-	utils.ColdKiller(newRemarksErr)
-	saveErr := iniFile.SaveTo(path)
-	utils.ColdKiller(saveErr)
+	iniHandler.NewIni().
+		NewSection(receiver.Name).
+		NewKey(receiver.Name, utils.WorkSpacePath, utils.JoinPwd(receiver.Path)).
+		NewKey(receiver.Name, utils.WorkSpaceRemarks, receiver.Remarks).
+		NewKey(receiver.Name, utils.WorkSpaceWithGroupPath, path).
+		NewKey(receiver.Name, utils.LastOpenMethodLabel, utils.LastOpenMethodLabelDefault).
+		Save()
 }
 
 func CreateWork(conf Create) {

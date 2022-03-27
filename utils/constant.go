@@ -1,24 +1,37 @@
 package utils
 
 const (
-	CmdName                = "work"
-	Version                = "0.0.1"
-	IniConfigurationFolder = "./ini"
+	CmdName                    = "work"
+	Version                    = "0.0.1"
+	IniConfigurationFolder     = "./ini"
+	NoComments                 = "no Comments"
+	OpenProjectModeConfigFile  = "./config/openMode.ini"
+	LastOpenMethodLabel        = "lastOpenMethodLabel"
+	LastOpenMethodLabelDefault = "unspecified" // 上次打开方式，默认未指定
+)
+
+// openProjectMode config
+
+const (
+	ModeCmd = "modeCmd" // 使用什么全局变量打卡 比如 vsocde 使用 code 打开
+	Label   = "label"   // 别名
 )
 
 // workspace group 工作组配置
 const (
-	WorkgroupConfigurationNameInIni = "workspaceGroup" // 在 ini 文件中的 工作组 section name
-	WorkGroupName                   = "groupName"      // 工作组key groupName
-	WorkGroupWithRemarks            = "groupRemarks"   // 工作组key group remarks
-	WorkGroupPath                   = "groupPath"      // 工作组路径
+	WorkgroupConfigurationNameInIni = "workspaceGroup"  // 在 ini 文件中的 工作组 section name
+	WorkGroupName                   = "groupName"       // 工作组key groupName
+	WorkGroupWithRemarks            = "groupRemarks"    // 工作组key group remarks
+	WorkGroupPath                   = "groupPath"       // 工作组路径
+	WorkGroupConfigPath             = "groupConfigPath" // 工作组配置路径
 )
 
 // workspace 工作组配置
 
 const (
-	WorkSpacePath    = "path"    // 工作区路径
-	WorkSpaceRemarks = "remarks" // 工作区备注
+	WorkSpacePath          = "path"      // 工作区路径
+	WorkSpaceRemarks       = "remarks"   // 工作区备注
+	WorkSpaceWithGroupPath = "groupPath" // 工作组路径
 )
 
 // Error line

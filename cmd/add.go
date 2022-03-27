@@ -10,11 +10,12 @@ import (
 
 //  新增工作区or工作组 (finish)
 var (
-	remark             string // 工作区备注
-	addWorkspacePath   string // 新增工作区路径
-	workingGroupNotes  string // 工作组备注
-	addAWorkingGroup   string // 新增工作组 路径
-	workSpaceWithGroup string // 工作区属于什么组
+	remark                 string // 工作区备注
+	addWorkspacePath       string // 新增工作区路径
+	workingGroupNotes      string // 工作组备注
+	addAWorkingGroup       string // 新增工作组 路径
+	workSpaceWithGroup     string // 工作区属于什么组
+	monitoringWorkingGroup string // 监听工作组 工作组下的所有文件或文件夹生成对应的工作区和工作组
 )
 
 var add = &cobra.Command{
@@ -31,6 +32,9 @@ var add = &cobra.Command{
 		})
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		areYouReadyMonitorWorkingGroup(func() {
+			monitorAWorkingGroup()
+		})
 		areYouReadyAddNewWorkGroup(func() {
 			core.CreateWork(&core.WorkSpaceGroup{
 				GroupRemarks: workingGroupNotes,
@@ -48,11 +52,13 @@ var add = &cobra.Command{
 }
 
 func init() {
-	add.Flags().StringVarP(&addWorkspacePath, "add", "a", "", fmt.Sprintln("add workspace path"))
-	add.Flags().StringVarP(&remark, "remark", "r", "", fmt.Sprintln("when adding a workspace, this parameter is required"))
-	add.Flags().StringVarP(&workingGroupNotes, "workingGroupNotes", "g", "", fmt.Sprintln("when adding a workspace group, this parameter is required"))
-	add.Flags().StringVarP(&addAWorkingGroup, "addAWorkingGroup", "m", "", fmt.Sprintln("add workspace group path"))
-	add.Flags().StringVarP(&workSpaceWithGroup, "with", "w", "", fmt.Sprintln("linking workspaces and workgroups"))
+	add.Flags().StringVarP(&addWorkspacePath, "add", "a", "", fmt.Sprintln("new workspace, path is required(新增工作区，路径为必填)"))
+	add.Flags().StringVarP(&remark, "remark", "r", "", fmt.Sprintln("workspace remarks, required when adding a workspace(工作区备注,新增工作区时必填)"))
+	add.Flags().StringVarP(&workingGroupNotes, "workingGroupNotes", "g", "", fmt.Sprintln("working group notes, required when adding a working group(工作组备注，新增工作组时必填)"))
+	add.Flags().StringVarP(&addAWorkingGroup, "addAWorkingGroup", "m", "", fmt.Sprintln("add a new workgroup, and the path is required(新增一个工作组，路径为必填项)"))
+	add.Flags().StringVarP(&workSpaceWithGroup, "with", "w", "", fmt.Sprintln("bind the workspace to the workgroup, which is required when adding a workspace(将工作区与工作组绑定，新增工作区时必填)"))
+	add.Flags().StringVarP(&monitoringWorkingGroup, "listen", "l", "", fmt.Sprintln("turn the path folder into a workgroup, and the subfolders under the folder into a workspace(将路径文件夹转为工作组，文件夹下的子文件夹转为工作区)"))
+	//monitoringWorkingGroup
 	rootCmd.AddCommand(add)
 }
 
@@ -115,13 +121,44 @@ func addWorkGroupVerifyHandler() {
 	verifyGroup.verifyPath(addAWorkingGroup)
 }
 
+func monitorAWorkingGroup() {
+	if !utils.IsDir(monitoringWorkingGroup) {
+		utils.BeforeStoppingProcess(func() {
+			utils.RedTips("you listen to a folder")
+		})
+	}
+	path := utils.JoinPwd(monitoringWorkingGroup)
+	core.CreateWork(&core.WorkSpaceGroup{
+		GroupRemarks: utils.NoComments,
+		Path:         monitoringWorkingGroup,
+	})
+	for _, meta := range core.ListDir(path, false) {
+		core.CreateWork(&core.WorkSpace{
+			Path:      meta.Name,
+			WithGroup: utils.GetLastFileNameDirectoryNamePath(path),
+			Remarks:   utils.NoComments,
+		})
+	}
+}
+
 func areYouReadyAddNewWorkspace(cb func()) {
+	if utils.NotEmpty(monitoringWorkingGroup) {
+		return
+	}
 	if utils.NotEmpty(addWorkspacePath) {
 		cb()
 	}
 }
 func areYouReadyAddNewWorkGroup(cb func()) {
+	if utils.NotEmpty(monitoringWorkingGroup) {
+		return
+	}
 	if utils.NotEmpty(addAWorkingGroup) {
+		cb()
+	}
+}
+func areYouReadyMonitorWorkingGroup(cb func()) {
+	if utils.NotEmpty(monitoringWorkingGroup) {
 		cb()
 	}
 }
