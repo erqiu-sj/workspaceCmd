@@ -5,8 +5,8 @@ import (
 	"os/exec"
 )
 
-func Shell(shell, args string, sucCb func(), failCb func(msg string)) {
-	cmd := exec.Command(shell, args)
+func Shell(shell string, sucCb func(), failCb func(msg string)) {
+	cmd := exec.Command("/bin/sh", "-c", shell)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()

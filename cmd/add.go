@@ -16,6 +16,7 @@ var (
 	addAWorkingGroup       string // 新增工作组 路径
 	workSpaceWithGroup     string // 工作区属于什么组
 	monitoringWorkingGroup string // 监听工作组 工作组下的所有文件或文件夹生成对应的工作区和工作组
+	excludeFolders         string // 监听工作组时，排除哪些文件夹
 )
 
 var add = &cobra.Command{
@@ -58,6 +59,7 @@ func init() {
 	add.Flags().StringVarP(&addAWorkingGroup, "addAWorkingGroup", "m", "", fmt.Sprintln("add a new workgroup, and the path is required(新增一个工作组，路径为必填项)"))
 	add.Flags().StringVarP(&workSpaceWithGroup, "with", "w", "", fmt.Sprintln("bind the workspace to the workgroup, which is required when adding a workspace(将工作区与工作组绑定，新增工作区时必填)"))
 	add.Flags().StringVarP(&monitoringWorkingGroup, "listen", "l", "", fmt.Sprintln("turn the path folder into a workgroup, and the subfolders under the folder into a workspace(将路径文件夹转为工作组，文件夹下的子文件夹转为工作区)"))
+	add.Flags().StringVarP(&excludeFolders, "exclude", "e", "", fmt.Sprintln("which folders are excluded when listening to workgroups(监听工作组时,排除哪些文件夹)"))
 	//monitoringWorkingGroup
 	rootCmd.AddCommand(add)
 }
@@ -127,12 +129,18 @@ func monitorAWorkingGroup() {
 			utils.RedTips("you listen to a folder")
 		})
 	}
+
 	path := utils.JoinPwd(monitoringWorkingGroup)
 	core.CreateWork(&core.WorkSpaceGroup{
 		GroupRemarks: utils.NoComments,
 		Path:         monitoringWorkingGroup,
 	})
-	for _, meta := range core.ListDir(path, false) {
+
+	ignoreFolderList := core.IgnoreFolder(
+		utils.StringsToSlice(excludeFolders, ","),
+		core.ListDir(path, false),
+	)
+	for _, meta := range ignoreFolderList {
 		core.CreateWork(&core.WorkSpace{
 			Path:      meta.Name,
 			WithGroup: utils.GetLastFileNameDirectoryNamePath(path),

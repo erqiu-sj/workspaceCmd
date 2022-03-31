@@ -32,7 +32,6 @@ var lsCmd = &cobra.Command{
 		coreConfig.CheckWorkSpace()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-
 		// 打开工作组
 		core.CheckParameter(openProject && editWorkGroup, func() {
 			previewWorkspaceGroupHandler()
@@ -185,9 +184,6 @@ func removeWorkGroup() {
 	}
 }
 
-// TODO: 工作组或工作区应该有个记忆上次打开模式功能，而不是每次打开都询问打开方式
-// TODO: 如果该工作组或工作区被打开过一次，下次打开时候就应该按照上次打开方式打开
-// TODO: 可以通过参数的方式强制选择打开方式
 func openWorkspaceHandler() {
 	openWork, openIndex := StartSelect()
 	curWorkSpace := openWork[openIndex]
@@ -195,8 +191,7 @@ func openWorkspaceHandler() {
 		openMode := core.CreateOpenModeSelect()
 		iniHandler := utils.IniHelper{Path: curWorkSpace.GroupPath}
 		utils.Shell(
-			openMode.CmdAlias,
-			curWorkSpace.Path,
+			fmt.Sprint(openMode.CmdAlias, " ", curWorkSpace.Path),
 			func() {
 				iniHandler.NewIni().EditKey(curWorkSpace.Name, utils.LastOpenMethodLabel, openMode.Label).Save()
 			},
@@ -219,8 +214,7 @@ func openWorkspaceHandler() {
 	}
 	conf, _ := openHandler.GetItem()
 	utils.Shell(
-		conf.CmdAlias,
-		curWorkSpace.Path,
+		fmt.Sprint(conf.CmdAlias, " ", curWorkSpace.Path),
 		func() {
 
 		},

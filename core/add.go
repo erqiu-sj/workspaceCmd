@@ -52,7 +52,7 @@ func (receiver *WorkSpace) NewConfig() {
 	defer func() {
 		utils.GreenTips("new workspace succeeded")
 	}()
-	path := filepath.Join(utils.GetPwd(), utils.IniConfigurationFolder, fmt.Sprint(receiver.WithGroup, ".ini"))
+	path := filepath.Join(utils.IniConfigurationFolder, fmt.Sprint(receiver.WithGroup, ".ini"))
 	iniHandler := utils.IniHelper{
 		Path: path,
 	}

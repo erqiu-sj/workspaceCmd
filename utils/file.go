@@ -12,8 +12,11 @@ func DoesFolderExist(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
 	}
-
 	return true
+}
+func Mkdir(path string) {
+	err := os.MkdirAll(path, 0766)
+	ColdKiller(err)
 }
 
 func RemoveFile(file string) {
@@ -31,13 +34,17 @@ func JoinPwd(path string) string {
 }
 
 func CreateFile(path string) {
-	f, createErr := os.Create(path)
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
-	InterceptErrorsAndKillProcessImmediately(createErr, func(msg string) {
+	Shell(fmt.Sprint("sudo touch ", path), func() {
+	}, func(msg string) {
 		RedTips(CreateErrorFile)
 	})
+	//f, createErr := os.Create(path)
+	//defer func(f *os.File) {
+	//	_ = f.Close()
+	//}(f)
+	//InterceptErrorsAndKillProcessImmediately(createErr, func(msg string) {
+	//	RedTips(CreateErrorFile)
+	//})
 }
 
 func IsDir(path string) bool {
@@ -50,7 +57,7 @@ func IsDir(path string) bool {
 func CreateIniFile(name string) string {
 	path := filepath.Join(IniConfigurationFolder, fmt.Sprint(name, ".ini"))
 	CreateFile(path)
-	return JoinPwd(path)
+	return path
 }
 
 // GetLastFileNameDirectoryNamePath 获取路径最后的文件夹或文件 /src/pack  => pack

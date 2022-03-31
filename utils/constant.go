@@ -3,9 +3,11 @@ package utils
 const (
 	CmdName                    = "work"
 	Version                    = "0.0.1"
-	IniConfigurationFolder     = "./ini"
+	WorkSpacePathWithLocal     = "/usr/local/workspace"
+	IniConfigurationFolder     = "/usr/local/workspace/ini"
 	NoComments                 = "no Comments"
-	OpenProjectModeConfigFile  = "./config/openMode.ini"
+	ConfigDir                  = "/usr/local/workspace/config"
+	OpenProjectModeConfigFile  = "/usr/local/workspace/config/openMode.ini"
 	LastOpenMethodLabel        = "lastOpenMethodLabel"
 	LastOpenMethodLabelDefault = "unspecified" // 上次打开方式，默认未指定
 )

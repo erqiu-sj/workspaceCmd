@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
 	"workspaceCmd/utils"
 )
 
@@ -68,7 +67,7 @@ func (receiver *Check) CheckWorkSpace() {
 }
 
 func (receiver *Check) CheckWorkGroup() {
-	receiver.workGroupConfigure = ListDir(utils.JoinPwd(utils.IniConfigurationFolder), true)
+	receiver.workGroupConfigure = ListDir(utils.IniConfigurationFolder, true)
 }
 func IsExcludeFolders(path string) bool {
 	disList := []string{".git", ".idea"}
@@ -93,18 +92,31 @@ func ListDir(folder string, allowLogFiles bool) []ListDirMeta {
 		if IsExcludeFolders(file.Name()) {
 			continue
 		}
-		strAbsPath, errPath := filepath.Abs(folder + "/" + file.Name())
-		utils.ColdKiller(errPath)
+		path := fmt.Sprint(folder + "/" + file.Name())
+		//utils.ColdKiller(errPath)
 		if allowLogFiles {
-			list = append(list, ListDirMeta{Name: file.Name(), Path: strAbsPath})
+			list = append(list, ListDirMeta{Name: file.Name(), Path: path})
 		} else if file.IsDir() {
 			//// 输出绝对路径
 			//strAbsPath, errPath := filepath.Abs(folder + "/" + file.Name())
 			//utils.ColdKiller(errPath)
-			list = append(list, ListDirMeta{Name: file.Name(), Path: strAbsPath})
+			list = append(list, ListDirMeta{Name: file.Name(), Path: path})
 		}
 	}
 	return list
+}
+
+func IgnoreFolder(list []string, listDir []ListDirMeta) []ListDirMeta {
+	if len(list) == 0 {
+		return listDir
+	}
+	var result []ListDirMeta
+	for _, meta := range listDir {
+		if !utils.FromSliceFindString(list, meta.Name) {
+			result = append(result, meta)
+		}
+	}
+	return result
 }
 
 // CheckParameter

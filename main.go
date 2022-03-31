@@ -10,6 +10,7 @@ package main
 import (
 	"fmt"
 	"workspaceCmd/cmd"
+	"workspaceCmd/core"
 )
 
 func main() {
@@ -26,5 +27,6 @@ func main() {
 	                                                      | $$                                                                            
 	                                                      |__/                          by 邱狮杰                                                  
 	`)
+	core.CheckInitFile()
 	cmd.Execute()
 }
