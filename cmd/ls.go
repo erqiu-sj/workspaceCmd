@@ -32,19 +32,7 @@ var lsCmd = &cobra.Command{
 		coreConfig.CheckWorkSpace()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// 打开工作组
-		core.CheckParameter(openProject && editWorkGroup, func() {
-			previewWorkspaceGroupHandler()
-		})
-		// 打开工作区
-		core.CheckParameter(openProject, func() {
-			openWorkspaceHandler()
-		})
-		// 只读工作组和工作区
-		// 如删除 修改工作区 打开工作区操作 则不执行
-		core.CheckParameter(viewAllWorkgroups, func() {
-			previewWorkspaceGroupHandler()
-		})
+
 		// 删除工作组
 		core.CheckParameter(deleteWorkSpace && editWorkGroup, func() {
 			removeWorkGroup()
@@ -61,6 +49,19 @@ var lsCmd = &cobra.Command{
 		// 修改工作区
 		core.CheckParameter(utils.NotEmpty(editWorkSpace) || editWorkSpace == EditMode_DESC || editWorkSpace == EditMode_Path, func() {
 			editWorkSpaceHandler()
+		})
+		// 打开工作组
+		core.CheckParameter(openProject && editWorkGroup, func() {
+			previewWorkspaceGroupHandler()
+		})
+		// 打开工作区
+		core.CheckParameter(openProject, func() {
+			openWorkspaceHandler()
+		})
+		// 只读工作组和工作区
+		// 如删除 修改工作区 打开工作区操作 则不执行
+		core.CheckParameter(viewAllWorkgroups, func() {
+			previewWorkspaceGroupHandler()
 		})
 	},
 }
@@ -130,7 +131,6 @@ func editWorkSpaceHandler() {
 		})
 	}
 	if editWorkSpace == EditMode_Path {
-
 		pathWorkList, pathWorkIndex := StartSelect()
 		inquiryTips := utils.InquiryTips("what is a new path?")
 		newPath, editNewPathErr := inquiryTips.Run()

@@ -20,8 +20,13 @@ func Mkdir(path string) {
 }
 
 func RemoveFile(file string) {
-	err := os.Remove(file)
-	ColdKiller(err)
+	Shell(fmt.Sprint("sudo rm -rf ", file), func() {
+		GreenTips("successfully deleted")
+	}, func(msg string) {
+		RedTips(msg)
+	})
+	//err := os.Remove(file)
+	//ColdKiller(err)
 }
 
 func GetPwd() string {
