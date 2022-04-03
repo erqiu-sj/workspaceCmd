@@ -33,7 +33,7 @@ const (
 const (
 	WorkSpacePath          = "path"      // 工作区路径
 	WorkSpaceRemarks       = "remarks"   // 工作区备注
-	WorkSpaceWithGroupPath = "groupPath" // 工作组路径
+	WorkSpaceWithGroupPath = "groupPath" // 工作组配置文件路径
 )
 
 // Error line
